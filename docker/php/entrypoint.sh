@@ -18,20 +18,18 @@ mkdir -p \
 
 
 # ---------------------------------------------------------------------------- #
-# Set permissions
+# Permissions
 # ---------------------------------------------------------------------------- #
 
-chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+chmod -R ug+rwx storage bootstrap/cache 2>/dev/null || true
 
 
 # ---------------------------------------------------------------------------- #
-# Create .env if missing
+# Create .env
 # ---------------------------------------------------------------------------- #
 
-if [ ! -f .env ]; then
-    if [ -f .env.example ]; then
-        cp .env.example .env
-    fi
+if [ ! -f .env ] && [ -f .env.example ]; then
+    cp .env.example .env
 fi
 
 
@@ -48,6 +46,7 @@ if [ -f composer.lock ]; then
         STORED_HASH=$(cat vendor/.composer-hash)
     fi
 
+
     if [ "$CURRENT_HASH" != "$STORED_HASH" ]; then
 
         composer install \
@@ -55,6 +54,9 @@ if [ -f composer.lock ]; then
             --no-progress \
             --prefer-dist \
             --optimize-autoloader
+
+
+        mkdir -p vendor
 
         echo "$CURRENT_HASH" > vendor/.composer-hash
 
@@ -67,32 +69,32 @@ fi
 # Laravel initialization
 # ---------------------------------------------------------------------------- #
 
-if [ -f artisan ]; then
+if [ -f artisan ] && [ -f .env ]; then
 
 
-    # Generate APP_KEY only if missing
+    if grep -q "^APP_KEY=$" .env; then
 
-    if grep -q "^APP_KEY=$" .env 2>/dev/null; then
+        echo "Generating APP_KEY..."
+
         php artisan key:generate --force
+
     fi
 
 
-    # Clear old cached config
-
-    php artisan config:clear || true
+    php artisan optimize:clear || true
 
 fi
 
 
 # ---------------------------------------------------------------------------- #
-# Clear OPcache file cache
+# Clear OPcache
 # ---------------------------------------------------------------------------- #
 
-rm -rf /tmp/opcache/* || true
+rm -rf /tmp/opcache/* 2>/dev/null || true
 
 
 # ---------------------------------------------------------------------------- #
-# Execute command
+# Start service
 # ---------------------------------------------------------------------------- #
 
 exec "$@"

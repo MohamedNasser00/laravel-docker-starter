@@ -110,7 +110,6 @@ It automatically:
 | `make test`      | Run Laravel tests               |
 | `make pint`      | Run Laravel Pint                |
 | `make npm`       | Run npm commands                |
-| `make install`   | Setup Laravel application       |
 
 
 ## Database
@@ -134,8 +133,6 @@ http://localhost:18080
 `make init` automatically creates the `.env` file from `.env.example` if it does not already exist.
 
 After the first setup, update the values in `.env` to match your project requirements (database credentials, application name, mail configuration, etc.).
-
-Then update the values in `.env` to match your project requirements (database name, credentials, app name, etc.).
 
 The `.env.example` file includes default values for Docker development. The MySQL credentials in `.env.example` are synchronized with the Docker MySQL service configuration.
 

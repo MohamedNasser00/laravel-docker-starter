@@ -10,6 +10,7 @@
 # ---------------------------------------------------------------------------- #
 
 help:
+	@echo "  make init        First project setup"
 	@echo ""
 	@echo "Available commands:"
 	@echo ""
@@ -34,6 +35,25 @@ help:
 # ---------------------------------------------------------------------------- #
 # Docker
 # ---------------------------------------------------------------------------- #
+
+# ---------------------------------------------------------------------------- #
+# First Project Setup
+# ---------------------------------------------------------------------------- #
+
+init:
+	@if [ ! -f .env ]; then \
+		cp .env.example .env; \
+		echo "✓ .env created"; \
+	else \
+		echo "✓ .env already exists"; \
+	fi
+
+	docker compose up -d --build
+
+	@echo "Waiting for containers..."
+	@sleep 5
+
+	docker compose exec app bash scripts/install.sh
 
 up:
 	docker compose up -d

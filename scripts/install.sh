@@ -2,10 +2,11 @@
 
 set -e
 
+trap 'rm -rf /tmp/laravel' EXIT
+
 echo "Starting Laravel installation..."
 
 cd /var/www/html
-
 
 # ---------------------------------------------------------------------------- #
 # Environment
@@ -16,6 +17,20 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
+# ---------------------------------------------------------------------------- #
+# Install Laravel (First Time Only)
+# ---------------------------------------------------------------------------- #
+
+if [ ! -f artisan ]; then
+    echo "Laravel project not found."
+    echo "Installing latest Laravel..."
+
+    composer create-project laravel/laravel /tmp/laravel
+
+    rsync -a /tmp/laravel/ /var/www/html/
+
+    echo "Latest Laravel installed."
+fi
 
 # ---------------------------------------------------------------------------- #
 # Composer
@@ -28,6 +43,7 @@ composer install \
     --prefer-dist \
     --optimize-autoloader
 
+composer clear-cache
 
 # ---------------------------------------------------------------------------- #
 # Application Key
@@ -38,7 +54,6 @@ if ! grep -q "APP_KEY=base64:" .env; then
     php artisan key:generate --force
 fi
 
-
 # ---------------------------------------------------------------------------- #
 # Storage
 # ---------------------------------------------------------------------------- #
@@ -46,7 +61,6 @@ fi
 echo "Creating storage link..."
 
 php artisan storage:link || true
-
 
 # ---------------------------------------------------------------------------- #
 # Database Tables
@@ -90,7 +104,6 @@ echo "Running migrations..."
 
 php artisan migrate --force
 
-
 # ---------------------------------------------------------------------------- #
 # Node Dependencies & Frontend Build
 # ---------------------------------------------------------------------------- #
@@ -100,7 +113,6 @@ if [ -f package.json ]; then
     echo "Installing Node dependencies..."
 
     npm install
-
 
     if grep -q '"build"' package.json; then
 

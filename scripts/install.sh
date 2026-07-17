@@ -2,35 +2,10 @@
 
 set -e
 
-trap 'rm -rf /tmp/laravel' EXIT
-
-echo "Starting Laravel installation..."
+echo "Starting Laravel setup..."
 
 cd /var/www/html
 
-# ---------------------------------------------------------------------------- #
-# Environment
-# ---------------------------------------------------------------------------- #
-
-if [ ! -f .env ]; then
-    echo "Creating .env file..."
-    cp .env.example .env
-fi
-
-# ---------------------------------------------------------------------------- #
-# Install Laravel (First Time Only)
-# ---------------------------------------------------------------------------- #
-
-if [ ! -f artisan ]; then
-    echo "Laravel project not found."
-    echo "Installing latest Laravel..."
-
-    composer create-project laravel/laravel /tmp/laravel
-
-    rsync -a /tmp/laravel/ /var/www/html/
-
-    echo "Latest Laravel installed."
-fi
 
 # ---------------------------------------------------------------------------- #
 # Composer
@@ -43,16 +18,30 @@ composer install \
     --prefer-dist \
     --optimize-autoloader
 
-composer clear-cache
 
 # ---------------------------------------------------------------------------- #
 # Application Key
 # ---------------------------------------------------------------------------- #
 
-if ! grep -q "APP_KEY=base64:" .env; then
+if grep -q "^APP_KEY=$" .env 2>/dev/null; then
+
     echo "Generating application key..."
+
     php artisan key:generate --force
+
 fi
+
+
+# ---------------------------------------------------------------------------- #
+# Laravel cache
+# ---------------------------------------------------------------------------- #
+
+echo "Clearing Laravel cache..."
+
+php artisan config:clear
+
+php artisan optimize:clear || true
+
 
 # ---------------------------------------------------------------------------- #
 # Storage
@@ -62,50 +51,9 @@ echo "Creating storage link..."
 
 php artisan storage:link || true
 
-# ---------------------------------------------------------------------------- #
-# Database Tables
-# ---------------------------------------------------------------------------- #
-
-echo "Preparing Laravel database tables..."
-
-php artisan session:table || true
-php artisan cache:table || true
-php artisan queue:table || true
 
 # ---------------------------------------------------------------------------- #
-# Wait for Database
-# ---------------------------------------------------------------------------- #
-
-echo "Waiting for MySQL..."
-
-until php -r "
-try {
-    new PDO(
-        'mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'),
-        getenv('DB_USERNAME'),
-        getenv('DB_PASSWORD')
-    );
-    exit(0);
-} catch (Exception \$e) {
-    exit(1);
-}
-"; do
-    echo "MySQL is not ready yet..."
-    sleep 2
-done
-
-echo "MySQL is ready."
-
-# ---------------------------------------------------------------------------- #
-# Migration
-# ---------------------------------------------------------------------------- #
-
-echo "Running migrations..."
-
-php artisan migrate --force
-
-# ---------------------------------------------------------------------------- #
-# Node Dependencies & Frontend Build
+# Frontend
 # ---------------------------------------------------------------------------- #
 
 if [ -f package.json ]; then
@@ -114,23 +62,8 @@ if [ -f package.json ]; then
 
     npm install
 
-    if grep -q '"build"' package.json; then
-
-        echo "Building frontend assets..."
-
-        npm run build
-
-    else
-
-        echo "No build script found. Skipping frontend build."
-
-    fi
-
-else
-
-    echo "No package.json found. Skipping Node setup."
-
 fi
+
 
 # ---------------------------------------------------------------------------- #
 # Permissions
@@ -140,5 +73,6 @@ echo "Fixing permissions..."
 
 chmod -R ug+rwx storage bootstrap/cache || true
 
+
 echo ""
-echo "Laravel installation completed successfully!"
+echo "Laravel setup completed successfully!"

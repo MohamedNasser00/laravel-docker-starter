@@ -83,45 +83,16 @@ It automatically:
 - Creates `.env` from `.env.example` (if needed)
 - Builds Docker images
 - Starts all containers
-- Runs the installation script
-
----
-
-## 3. Install Laravel
-
-If this template does **not** already contain Laravel, enter the container:
-
-```bash
-make bash
-```
-
-Create Laravel inside the project:
-
-```bash
-composer create-project laravel/laravel .
-```
-
-Exit the container:
-
-```bash
-exit
-```
-
-Run the installer:
-
-```bash
-make install
-```
-
-The installer will automatically:
-
-- Install Composer dependencies
-- Generate the application key
-- Create the storage symlink
-- Prepare Laravel database tables
-- Run migrations
-- Install Node packages (if `package.json` exists)
-- Build frontend assets (if a build script exists)
+- Detects whether Laravel is already installed
+- Installs the latest Laravel automatically (if missing)
+- Installs Composer dependencies
+- Generates the application key
+- Creates the storage symlink
+- Waits for MySQL to be ready
+- Runs database migrations
+- Installs Node packages (if `package.json` exists)
+- Builds frontend assets (if a build script exists)
+- Fixes file permissions
 
 ---
 
@@ -143,7 +114,6 @@ The installer will automatically:
 | `make test` | Run tests |
 | `make pint` | Run Laravel Pint |
 | `make npm` | Run npm commands |
-| `make install` | Run the installation script |
 
 ---
 

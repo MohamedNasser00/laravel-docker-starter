@@ -59,12 +59,13 @@ git clone <repository-url> project-name
 cd project-name
 ```
 
-### 2. Start Docker containers
+### 2. Initialize the project
 
 ```bash
 make init
 ```
-make init is intended to be run once when starting a new project. It creates the .env file (if needed), starts Docker containers, and installs the project automatically.
+
+`make init` should be run only once when starting a new project. It automatically creates the `.env` file (if needed), starts the Docker containers, and installs the Laravel application.
 
 This will start:
 

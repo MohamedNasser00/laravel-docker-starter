@@ -62,8 +62,9 @@ cd project-name
 ### 2. Start Docker containers
 
 ```bash
-make up
+make init
 ```
+make init is intended to be run once when starting a new project. It creates the .env file (if needed), starts Docker containers, and installs the project automatically.
 
 This will start:
 

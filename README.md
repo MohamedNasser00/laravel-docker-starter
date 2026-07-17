@@ -73,28 +73,29 @@ This will start:
 - MySQL database
 - phpMyAdmin
 
-### 3. Install Laravel dependencies
+### What `make init` does
 
-```bash
-make install
-```
+`make init` is intended to be run only once for a new project.
 
-This command will:
+It automatically:
 
-- Create `.env` from `.env.example`
-- Install Composer dependencies
-- Generate Laravel application key
-- Create storage link
-- Prepare database tables
-- Run migrations
-- Install frontend dependencies (if `package.json` exists)
-- Build frontend assets (if a `build` script exists)
+- Creates `.env` from `.env.example` (if it doesn't exist)
+- Builds Docker images
+- Starts all containers
+- Installs Composer dependencies
+- Generates the application key
+- Creates the storage symlink
+- Prepares Laravel database tables
+- Runs database migrations
+- Installs Node dependencies (if `package.json` exists)
+- Builds frontend assets (if a build script exists)
 
 
 ## Available Commands
 
 | Command          | Description                     |
 | ---------------- | ------------------------------- |
+| `make init`      | First-time project setup        |
 | `make up`        | Start Docker containers         |
 | `make down`      | Stop Docker containers          |
 | `make build`     | Rebuild Docker images           |
@@ -129,11 +130,9 @@ http://localhost:18080
 
 ## Environment Configuration
 
-Copy the example environment file:
+`make init` automatically creates the `.env` file from `.env.example` if it does not already exist.
 
-```bash
-cp .env.example .env
-```
+After the first setup, update the values in `.env` to match your project requirements (database credentials, application name, mail configuration, etc.).
 
 Then update the values in `.env` to match your project requirements (database name, credentials, app name, etc.).
 

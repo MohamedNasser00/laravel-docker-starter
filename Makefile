@@ -2,7 +2,7 @@
 # Laravel Docker Starter Makefile
 # ---------------------------------------------------------------------------- #
 
-.PHONY: help up down build restart logs bash composer artisan migrate fresh seed test pint npm install
+.PHONY: help init up down build restart logs bash composer artisan migrate fresh seed test pint npm install
 
 # ---------------------------------------------------------------------------- #
 # Help
@@ -12,6 +12,7 @@ help:
 	@echo ""
 	@echo "Available commands:"
 	@echo ""
+	@echo "  make init        First project setup"
 	@echo "  make up          Start Docker containers"
 	@echo "  make down        Stop Docker containers"
 	@echo "  make build       Rebuild Docker images"
@@ -28,6 +29,25 @@ help:
 	@echo "  make npm         Run npm commands"
 	@echo "  make install     Setup Laravel application"
 	@echo ""
+
+# ---------------------------------------------------------------------------- #
+# First Project Setup
+# ---------------------------------------------------------------------------- #
+
+init:
+	@if [ ! -f .env ]; then \
+		cp .env.example .env; \
+		echo "✓ .env created"; \
+	else \
+		echo "✓ .env already exists"; \
+	fi
+
+	docker compose up -d --build
+
+	@echo "Waiting for containers..."
+	@sleep 5
+
+	docker compose exec app bash scripts/install.sh
 
 # ---------------------------------------------------------------------------- #
 # Docker

@@ -2,14 +2,13 @@
 # Laravel Docker Starter Makefile
 # ---------------------------------------------------------------------------- #
 
-.PHONY: help init up down build restart logs bash composer artisan migrate fresh seed test pint npm install
+.PHONY: help up down build restart logs bash composer artisan migrate fresh seed test pint npm install
 
 # ---------------------------------------------------------------------------- #
 # Help
 # ---------------------------------------------------------------------------- #
 
 help:
-	@echo "  make init        First project setup"
 	@echo ""
 	@echo "Available commands:"
 	@echo ""
@@ -30,49 +29,24 @@ help:
 	@echo "  make install     Setup Laravel application"
 	@echo ""
 
-
 # ---------------------------------------------------------------------------- #
 # Docker
 # ---------------------------------------------------------------------------- #
 
-# ---------------------------------------------------------------------------- #
-# First Project Setup
-# ---------------------------------------------------------------------------- #
-
-init:
-	@if [ ! -f .env ]; then \
-		cp .env.example .env; \
-		echo "✓ .env created"; \
-	else \
-		echo "✓ .env already exists"; \
-	fi
-
-	docker compose up -d --build
-
-	@echo "Waiting for containers..."
-	@sleep 5
-
-	docker compose exec app bash scripts/install.sh
-
 up:
 	docker compose up -d
-
 
 down:
 	docker compose down
 
-
 build:
 	docker compose build
-
 
 restart:
 	docker compose restart
 
-
 logs:
 	docker compose logs -f
-
 
 # ---------------------------------------------------------------------------- #
 # PHP Container
@@ -81,14 +55,12 @@ logs:
 bash:
 	docker compose exec app bash
 
-
 # ---------------------------------------------------------------------------- #
 # Composer
 # ---------------------------------------------------------------------------- #
 
 composer:
 	docker compose exec app composer install
-
 
 # ---------------------------------------------------------------------------- #
 # Laravel Artisan
@@ -97,18 +69,14 @@ composer:
 artisan:
 	docker compose exec app php artisan
 
-
 migrate:
 	docker compose exec app php artisan migrate
-
 
 fresh:
 	docker compose exec app php artisan migrate:fresh --seed
 
-
 seed:
 	docker compose exec app php artisan db:seed
-
 
 # ---------------------------------------------------------------------------- #
 # Testing / Quality
@@ -117,10 +85,8 @@ seed:
 test:
 	docker compose exec app php artisan test
 
-
 pint:
 	docker compose exec app ./vendor/bin/pint
-
 
 # ---------------------------------------------------------------------------- #
 # Node
@@ -128,7 +94,6 @@ pint:
 
 npm:
 	docker compose exec app npm
-
 
 # ---------------------------------------------------------------------------- #
 # Installation

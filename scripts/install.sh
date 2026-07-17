@@ -58,6 +58,29 @@ php artisan session:table || true
 php artisan cache:table || true
 php artisan queue:table || true
 
+# ---------------------------------------------------------------------------- #
+# Wait for Database
+# ---------------------------------------------------------------------------- #
+
+echo "Waiting for MySQL..."
+
+until php -r "
+try {
+    new PDO(
+        'mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'),
+        getenv('DB_USERNAME'),
+        getenv('DB_PASSWORD')
+    );
+    exit(0);
+} catch (Exception \$e) {
+    exit(1);
+}
+"; do
+    echo "MySQL is not ready yet..."
+    sleep 2
+done
+
+echo "MySQL is ready."
 
 # ---------------------------------------------------------------------------- #
 # Migration
@@ -103,8 +126,7 @@ fi
 
 echo "Fixing permissions..."
 
-chmod -R 775 storage bootstrap/cache || true
-
+chmod -R ug+rwx storage bootstrap/cache || true
 
 echo ""
 echo "Laravel installation completed successfully!"

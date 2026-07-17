@@ -2,8 +2,7 @@
 # Laravel Docker Starter Makefile
 # ---------------------------------------------------------------------------- #
 
-.PHONY: help up down build restart logs bash composer artisan migrate fresh seed test pint npm install
-
+.PHONY: help init up down build restart logs bash composer artisan migrate fresh seed test pint npm install
 
 # ---------------------------------------------------------------------------- #
 # Help

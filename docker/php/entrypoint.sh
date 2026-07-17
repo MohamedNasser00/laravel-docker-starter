@@ -4,6 +4,7 @@ set -e
 
 cd /var/www/html
 
+
 # ---------------------------------------------------------------------------- #
 # Create required directories
 # ---------------------------------------------------------------------------- #
@@ -15,24 +16,31 @@ mkdir -p \
     storage/logs \
     bootstrap/cache
 
+
 # ---------------------------------------------------------------------------- #
-# Set ownership and permissions
+# Set permissions
 # ---------------------------------------------------------------------------- #
 
-chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
-# ---------------------------------------------------------------------------- #
-# Clear OPcache file cache
-# ---------------------------------------------------------------------------- #
-
-rm -rf /tmp/opcache/*
 
 # ---------------------------------------------------------------------------- #
-# Composer install (only if dependencies changed)
+# Create .env if missing
+# ---------------------------------------------------------------------------- #
+
+if [ ! -f .env ]; then
+    if [ -f .env.example ]; then
+        cp .env.example .env
+    fi
+fi
+
+
+# ---------------------------------------------------------------------------- #
+# Composer install
 # ---------------------------------------------------------------------------- #
 
 if [ -f composer.lock ]; then
+
     CURRENT_HASH=$(sha1sum composer.lock | awk '{print $1}')
     STORED_HASH=""
 
@@ -41,17 +49,50 @@ if [ -f composer.lock ]; then
     fi
 
     if [ "$CURRENT_HASH" != "$STORED_HASH" ]; then
+
         composer install \
             --no-interaction \
             --no-progress \
             --prefer-dist \
             --optimize-autoloader
+
         echo "$CURRENT_HASH" > vendor/.composer-hash
+
     fi
+
 fi
 
+
 # ---------------------------------------------------------------------------- #
-# Execute the provided command
+# Laravel initialization
+# ---------------------------------------------------------------------------- #
+
+if [ -f artisan ]; then
+
+
+    # Generate APP_KEY only if missing
+
+    if grep -q "^APP_KEY=$" .env 2>/dev/null; then
+        php artisan key:generate --force
+    fi
+
+
+    # Clear old cached config
+
+    php artisan config:clear || true
+
+fi
+
+
+# ---------------------------------------------------------------------------- #
+# Clear OPcache file cache
+# ---------------------------------------------------------------------------- #
+
+rm -rf /tmp/opcache/* || true
+
+
+# ---------------------------------------------------------------------------- #
+# Execute command
 # ---------------------------------------------------------------------------- #
 
 exec "$@"

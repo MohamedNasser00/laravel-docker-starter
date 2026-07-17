@@ -1,8 +1,8 @@
 # Laravel Docker Starter
 
-A reusable Laravel starter template with Docker environment setup.
+A reusable Laravel starter template with a complete Docker development environment for Laravel projects.
 
-This template provides a ready-to-use Docker development environment for Laravel projects with:
+## Features
 
 - PHP 8.4 FPM
 - Nginx 1.27
@@ -10,17 +10,21 @@ This template provides a ready-to-use Docker development environment for Laravel
 - Composer 2
 - Node.js 22
 - phpMyAdmin
-- Laravel optimized development configuration
+- Optimized Docker configuration
+- Development & Production OPcache configuration
+- One-command project initialization (`make init`)
 
+---
 
 ## Requirements
 
-Before using this template, make sure you have:
+Before using this template, make sure you have installed:
 
 - Git
 - Docker Desktop
 - Docker Compose
 
+---
 
 ## Project Structure
 
@@ -49,95 +53,131 @@ laravel-starter/
 └── README.md
 ```
 
+---
 
-## Getting Started
+# Getting Started
 
-### 1. Clone the repository
+## 1. Create a new project from this template
+
+Click **Use this template** on GitHub, create your new repository, then clone it.
 
 ```bash
-git clone <repository-url> project-name
+git clone <repository-url>
 cd project-name
 ```
 
-### 2. Initialize the project
+---
+
+## 2. Initialize the project
+
+Run:
 
 ```bash
 make init
 ```
 
-`make init` should be run only once when starting a new project. It automatically creates the `.env` file (if needed), starts the Docker containers, and installs the Laravel application.
-
-This will start:
-
-- PHP-FPM application container
-- Nginx web server
-- MySQL database
-- phpMyAdmin
-
-### What `make init` does
-
-`make init` is intended to be run only once for a new project.
+This command should be executed **only once** for a new project.
 
 It automatically:
 
-- Creates `.env` from `.env.example` (if it doesn't exist)
+- Creates `.env` from `.env.example` (if needed)
 - Builds Docker images
 - Starts all containers
-- Installs Composer dependencies
-- Generates the application key
-- Creates the storage symlink
-- Prepares Laravel database tables
-- Runs database migrations
-- Installs Node dependencies (if `package.json` exists)
-- Builds frontend assets (if a build script exists)
+- Runs the installation script
 
+---
 
-## Available Commands
+## 3. Install Laravel
 
-| Command          | Description                     |
-| ---------------- | ------------------------------- |
-| `make init`      | First-time project setup        |
-| `make up`        | Start Docker containers         |
-| `make down`      | Stop Docker containers          |
-| `make build`     | Rebuild Docker images           |
-| `make restart`   | Restart containers              |
-| `make logs`      | Show container logs             |
-| `make bash`      | Enter PHP container             |
-| `make composer`  | Install Composer dependencies   |
-| `make migrate`   | Run database migrations         |
-| `make fresh`     | Fresh migration with seed       |
-| `make seed`      | Run database seeders            |
-| `make test`      | Run Laravel tests               |
-| `make pint`      | Run Laravel Pint                |
-| `make npm`       | Run npm commands                |
+If this template does **not** already contain Laravel, enter the container:
 
+```bash
+make bash
+```
 
-## Database
+Create Laravel inside the project:
+
+```bash
+composer create-project laravel/laravel .
+```
+
+Exit the container:
+
+```bash
+exit
+```
+
+Run the installer:
+
+```bash
+make install
+```
+
+The installer will automatically:
+
+- Install Composer dependencies
+- Generate the application key
+- Create the storage symlink
+- Prepare Laravel database tables
+- Run migrations
+- Install Node packages (if `package.json` exists)
+- Build frontend assets (if a build script exists)
+
+---
+
+# Available Commands
+
+| Command | Description |
+|----------|-------------|
+| `make init` | First-time project setup |
+| `make up` | Start Docker containers |
+| `make down` | Stop Docker containers |
+| `make build` | Rebuild Docker images |
+| `make restart` | Restart containers |
+| `make logs` | Show container logs |
+| `make bash` | Enter the PHP container |
+| `make composer` | Run Composer |
+| `make migrate` | Run migrations |
+| `make fresh` | Fresh migration with seed |
+| `make seed` | Run seeders |
+| `make test` | Run tests |
+| `make pint` | Run Laravel Pint |
+| `make npm` | Run npm commands |
+| `make install` | Run the installation script |
+
+---
+
+# Database
 
 Default Docker database configuration:
 
-| Variable           | Value     |
-| ------------------ | --------- |
-| `DB_HOST`          | mysql     |
-| `DB_PORT`          | 3306      |
+| Variable | Value |
+|----------|-------|
+| DB_HOST | mysql |
+| DB_PORT | 3306 |
 
-phpMyAdmin is available at:
+phpMyAdmin:
 
 ```
 http://localhost:18080
 ```
 
+---
 
-## Environment Configuration
+# Environment Configuration
 
-`make init` automatically creates the `.env` file from `.env.example` if it does not already exist.
+`make init` automatically creates `.env` from `.env.example`.
 
-After the first setup, update the values in `.env` to match your project requirements (database credentials, application name, mail configuration, etc.).
+After the first setup, edit `.env` to match your project's requirements, such as:
 
-The `.env.example` file includes default values for Docker development. The MySQL credentials in `.env.example` are synchronized with the Docker MySQL service configuration.
+- Application name
+- Database credentials
+- Mail configuration
+- Third-party API keys
 
+---
 
-## Development
+# Development
 
 Enter the PHP container:
 
@@ -145,28 +185,34 @@ Enter the PHP container:
 make bash
 ```
 
-Example Laravel commands inside the container:
+Example Laravel commands:
 
 ```bash
 php artisan migrate
+
 php artisan route:list
+
 php artisan tinker
+
 php artisan make:model Post -m
 ```
 
+---
 
-## Production Notes
+# Production Notes
 
-Before deploying to production:
+Before deploying:
 
-- Set `APP_ENV=production` and `APP_DEBUG=false`
-- Use strong, unique database credentials
-- Configure a proper queue worker if using queues
-- Use HTTPS with valid SSL certificates
-- Set a secure `APP_KEY` (do not use the development key)
-- Review the OPcache production configuration in `docker/php/opcache.prod.ini`
+- Set `APP_ENV=production`
+- Set `APP_DEBUG=false`
+- Use secure database credentials
+- Configure queue workers
+- Enable HTTPS
+- Use a secure `APP_KEY`
+- Use the production OPcache configuration
 
+---
 
-## License
+# License
 
-This starter template is free to use for personal and commercial Laravel projects.
+This template is free to use for personal and commercial Laravel projects.
